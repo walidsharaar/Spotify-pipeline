@@ -1,89 +1,115 @@
 import sqlalchemy
 import pandas as pd 
-from sqlalchemy.orm import sessionmaker
 import requests
 from datetime import datetime
 import datetime
-import psycopg2
+import psycopg2 as pg2
 
-TOKEN = "BQBDRXvVrhgNp_T62VQIVc4NSZdvVjWjNP-DMCoGs_ddZeXcjknzr35WUKClxZJMH7ncLgMBih1gJ1XaTEIr5s8Pg_BTxdNxvVJHpL6m4UPuNG7vWtZHQ1qUyIOLVjkKieAV8-tHdlHWZco1FySgNmNM_MEe5f3LWcQf"
 
-def check_if_valid_data(df: pd.DataFrame)->bool:
-  #check if dataframe is empty
-  if df.empty:
-    print("No Song listened within 24 hours")
-    return False
+DATABASE_LOCATION = "postgresql://postgres:password@localhost:54321/Programming"
+USER_ID = "Sharaar" # your Spotify username 
+TOKEN = "BQDT1obJpx-OkJWNiOWU2GgSEX1Mkn_BMKlys6DdiE425SX6PUPXx55DHyJyI1LcaFHRb1YpminLXBed5eQWBEUOV4u5oSWcDGvj89phslvjNXzh37qQSzeqBTaAREOGPRgY7GRE93Tccj1i6saJDZGz3zH9KJUCd1ko" # your Spotify API token
 
-    #check the uniquess
+# Generate your token here:  https://developer.spotify.com/console/get-recently-played/
+# Note: You need a Spotify account (can be easily created for free)
+
+def check_if_valid_data(df: pd.DataFrame) -> bool:
+    # Check if dataframe is empty
+    if df.empty:
+        print("No songs downloaded. Finishing execution")
+        return False 
+
+    # Primary Key Check
     if pd.Series(df['played_at']).is_unique:
-      pass
+        pass
     else:
-      raise Exception("Duplicate value found!")
-    
-    #check for the null values
+        raise Exception("Primary Key check is violated")
+
+    # Check for nulls
     if df.isnull().values.any():
-      raise Exception("Null valued found")
-    
-    #check the yestardays 
-    yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
+        raise Exception("Null values found")
+
+    # Check that all timestamps are of yesterday's date
+    yesterday = datetime.datetime.now() - datetime.timedelta(days=10)
     yesterday = yesterday.replace(hour=0, minute=0, second=0, microsecond=0)
-    timestamps= df["timestamp"].tolist()
+
+    timestamps = df["timestamp"].tolist()
     for timestamp in timestamps:
-      if datetime.datetime.strptime(timestamp,"%Y-%m-%d") != yesterday:
-        raise Exception("At least one of the returned songs comes from 24 hours!")
-    return True   
+        if datetime.datetime.strptime(timestamp, '%Y-%m-%d') != yesterday:
+            raise Exception("At least one of the returned songs does not have a yesterday's timestamp")
 
-
-
+    return True
 
 if __name__ == "__main__":
-    # Extract part of the ETL process
-  
-  headers = {
-      "Accept" : "application/json",
-      "Content-Type" : "application/json",
-      "Authorization" : "Bearer {token}".format(token=TOKEN)
-      }
 
-  # Convert time to Unix timestamp in miliseconds      
-  today = datetime.datetime.now()
-  yesterday = today - datetime.timedelta(days=1)
-  yesterday_unix_timestamp = int(yesterday.timestamp()) * 1000
+    # Extract part of the ETL process
+ 
+    headers = {
+        "Accept" : "application/json",
+        "Content-Type" : "application/json",
+        "Authorization" : "Bearer {token}".format(token=TOKEN)
+    }
+    
+    # Convert time to Unix timestamp in miliseconds      
+    today = datetime.datetime.now()
+    yesterday = today - datetime.timedelta(days=1)
+    yesterday_unix_timestamp = int(yesterday.timestamp()) * 1000
 
     # Download all songs you've listened to "after yesterday", which means in the last 24 hours      
-  request = requests.get("https://api.spotify.com/v1/me/player/recently-played?after={time}".format(time=yesterday_unix_timestamp),
-  headers = headers)
-  data = request.json()
-  print(data)
+    r = requests.get("https://api.spotify.com/v1/me/player/recently-played?after={time}".format(time=yesterday_unix_timestamp), headers = headers)
 
-  # field to store in database
-  song_names=[]
-  artist_names=[]
-  played_at_list=[]
-  timestamps=[]
+    data = r.json()
 
-  # looping the fetch data to get the required data
+    song_names = []
+    artist_names = []
+    played_at_list = []
+    timestamps = []
 
-  for song in data["items"]:
-      song_names.append(song["track"]["name"])
-      artist_names.append(song["track"]["album"]["artists"][0]["name"])
-      played_at_list.append(song["played_at"])
-      timestamps.append(song["played_at"][0:10])
-
+    # Extracting only the relevant bits of data from the json object      
+    for song in data["items"]:
+        song_names.append(song["track"]["name"])
+        artist_names.append(song["track"]["album"]["artists"][0]["name"])
+        played_at_list.append(song["played_at"])
+        timestamps.append(song["played_at"][0:10])
         
-      # Prepare a dictionary in order to turn it into a pandas dataframe below       
-  song_dict = {
-      "song_name" : song_names,
-      "artist_name": artist_names,
-      "played_at" : played_at_list,
-      "timestamp" : timestamps
-      }
+    # Prepare a dictionary in order to turn it into a pandas dataframe below       
+    song_dict = {
+        "song_name" : song_names,
+        "artist_name": artist_names,
+        "played_at" : played_at_list,
+        "timestamp" : timestamps
+    }
 
-  #create datafram using pandas
+    song_df = pd.DataFrame(song_dict, columns = ["song_name", "artist_name", "played_at", "timestamp"])
+    
+    # Validate
+    if check_if_valid_data(song_df):
+        print("Data valid, proceed to Load stage")
 
-  song_df = pd.DataFrame(song_dict, columns=["song_name","artist_name","played_at","timestamp"])
-  print(song_df)
+    # Load
 
-  # validate 
-  if check_if_valid_data(song_df):
-    print("Data valid, proceed to loading stage")
+    engine = sqlalchemy.create_engine(DATABASE_LOCATION)
+    conn = pg2.connect(database='Spotify_DB', user='postgres' , password= 'asimkhan0', port=54321)
+    cursor = conn.cursor()
+
+    sql_query = """
+    CREATE TABLE IF NOT EXISTS my_played_tracks(
+        song_name VARCHAR(200),
+        artist_name VARCHAR(200),
+        played_at VARCHAR(200),
+        timestamp VARCHAR(200),
+        CONSTRAINT primary_key_constraint PRIMARY KEY (played_at)
+    )
+    """
+
+    cursor.execute(sql_query)
+    print("Opened database successfully")
+
+    try:
+        song_df.to_sql("my_played_tracks", engine, index=False, if_exists='append')
+    except:
+        print("Data already exists in the database")
+
+    conn.close()
+    print("Close database successfully")
+    
