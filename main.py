@@ -6,7 +6,7 @@ import datetime
 import psycopg2 as pg2
 
 
-DATABASE_LOCATION = "postgresql://postgres:password@localhost:54321/Programming"
+DATABASE_LOCATION = "postgresql://postgres:pass@localhost:54321/Programming"
 USER_ID = "Sharaar" # your Spotify username 
 TOKEN = "BQDT1obJpx-OkJWNiOWU2GgSEX1Mkn_BMKlys6DdiE425SX6PUPXx55DHyJyI1LcaFHRb1YpminLXBed5eQWBEUOV4u5oSWcDGvj89phslvjNXzh37qQSzeqBTaAREOGPRgY7GRE93Tccj1i6saJDZGz3zH9KJUCd1ko" # your Spotify API token
 
@@ -29,16 +29,16 @@ def check_if_valid_data(df: pd.DataFrame) -> bool:
     if df.isnull().values.any():
         raise Exception("Null values found")
 
-    # Check that all timestamps are of yesterday's date
-    yesterday = datetime.datetime.now() - datetime.timedelta(days=10)
-    yesterday = yesterday.replace(hour=0, minute=0, second=0, microsecond=0)
+    # # Check that all timestamps are of yesterday's date
+    # yesterday = datetime.datetime.now() - datetime.timedelta(days=60)
+    # yesterday = yesterday.replace(hour=0, minute=0, second=0, microsecond=0)
 
-    timestamps = df["timestamp"].tolist()
-    for timestamp in timestamps:
-        if datetime.datetime.strptime(timestamp, '%Y-%m-%d') != yesterday:
-            raise Exception("At least one of the returned songs does not have a yesterday's timestamp")
+    # timestamps = df["timestamp"].tolist()
+    # for timestamp in timestamps:
+    #     if datetime.datetime.strptime(timestamp, '%Y-%m-%d') != yesterday:
+    #         raise Exception("At least one of the returned songs does not have a yesterday's timestamp")
 
-    return True
+    # return True
 
 if __name__ == "__main__":
 
@@ -89,7 +89,7 @@ if __name__ == "__main__":
     # Load
 
     engine = sqlalchemy.create_engine(DATABASE_LOCATION)
-    conn = pg2.connect(database='Spotify_DB', user='postgres' , password= 'asimkhan0', port=54321)
+    conn = pg2.connect(database='Spotify_DB', user='postgres' , password= 'pass', port=54321)
     cursor = conn.cursor()
 
     sql_query = """
