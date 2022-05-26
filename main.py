@@ -1,5 +1,5 @@
 import sqlalchemy
-import pandas as pd
+import pandas as pd 
 from sqlalchemy.orm import sessionmaker
 import requests
 import json
@@ -8,13 +8,12 @@ import datetime
 import sqlite3
 
 
-DATABASE_LOCATION = "sqllite://my_playlist.sqllite"
+DATABASE_LOCATION = "sqlite:///my_played_tracks.sqlite"
 USER_ID = "Sharaar" # your Spotify username 
-TOKEN = "BQDNmwDho1H0KMJTFdrlAjEM7OS9ZkZ9MV" # your Spotify API token
+TOKEN = "BQDzsTbRU1MQKP0VelIaQERXbaXC3ivQC-p4jNGrBvxoonpHroox_bG63PJjwh1-wPReQrx8mEezNf_YF9c7-9cz4k9SHycr8IMiHR24MOmcXNQ_t7SkIoegi4mdJ2Dt3oQql885A2owXp_VPcSv5L3Y0DmkjtBPTFbF" # your Spotify API token
 
 # Generate your token here:  https://developer.spotify.com/console/get-recently-played/
 # Note: You need a Spotify account (can be easily created for free)
-
 
 def check_if_valid_data(df: pd.DataFrame) -> bool:
     # Check if dataframe is empty
@@ -32,16 +31,16 @@ def check_if_valid_data(df: pd.DataFrame) -> bool:
     if df.isnull().values.any():
         raise Exception("Null values found")
 
-    # # Check that all timestamps are of yesterday's date
-    # yesterday = datetime.datetime.now() - datetime.timedelta(days=60)
-    # yesterday = yesterday.replace(hour=0, minute=0, second=0, microsecond=0)
+    # Check that all timestamps are of yesterday's date
+    yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
+    yesterday = yesterday.replace(hour=0, minute=0, second=0, microsecond=0)
 
-    # timestamps = df["timestamp"].tolist()
-    # for timestamp in timestamps:
-    #     if datetime.datetime.strptime(timestamp, '%Y-%m-%d') != yesterday:
-    #         raise Exception("At least one of the returned songs does not have a yesterday's timestamp")
+    timestamps = df["timestamp"].tolist()
+    for timestamp in timestamps:
+        if datetime.datetime.strptime(timestamp, '%Y-%m-%d') != yesterday:
+            raise Exception("At least one of the returned songs does not have a yesterday's timestamp")
 
-    # return True
+    return True
 
 if __name__ == "__main__":
 
@@ -55,7 +54,7 @@ if __name__ == "__main__":
     
     # Convert time to Unix timestamp in miliseconds      
     today = datetime.datetime.now()
-    yesterday = today - datetime.timedelta(days=1)
+    yesterday = today - datetime.timedelta(days=61)
     yesterday_unix_timestamp = int(yesterday.timestamp()) * 1000
 
     # Download all songs you've listened to "after yesterday", which means in the last 24 hours      
@@ -92,7 +91,7 @@ if __name__ == "__main__":
     # Load
 
     engine = sqlalchemy.create_engine(DATABASE_LOCATION)
-    conn = pg2.connect(database='Spotify_DB', user='postgres' , password= 'pass', port=54321)
+    conn = sqlite3.connect('my_played_tracks.sqlite')
     cursor = conn.cursor()
 
     sql_query = """
@@ -116,3 +115,8 @@ if __name__ == "__main__":
     conn.close()
     print("Close database successfully")
     
+
+
+    # Job scheduling 
+    
+    # For the scheduling in Airflow, refer to files in the dag folder 
