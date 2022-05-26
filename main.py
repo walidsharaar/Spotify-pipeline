@@ -10,7 +10,7 @@ import sqlite3
 
 DATABASE_LOCATION = "sqlite:///my_played_tracks.sqlite"
 USER_ID = "Sharaar" # your Spotify username 
-TOKEN = "BQDzsTbRU1MQKP0VelIaQERXbaXC3ivQC-p4jNGrBvxoonpHroox_bG63PJjwh1-wPReQrx8mEezNf_YF9c7-9cz4k9SHycr8IMiHR24MOmcXNQ_t7SkIoegi4mdJ2Dt3oQql885A2owXp_VPcSv5L3Y0DmkjtBPTFbF" # your Spotify API token
+TOKEN = "BQA-NgxwoMSL4QiV_rJdJ04kJl2MzEX2EqZHVK8yDbipFACKE0WawqqSoasK8mpkHRXXy3MITlsLSuacNIBks5sB-3KT-x5nq-m6y8BIUMNY03VkP1KwVOag9Ef8e6Ab7rQKvGHl7yv2sLwJF1wT0QqyTxQQdLWEkImO" # your Spotify API token
 
 # Generate your token here:  https://developer.spotify.com/console/get-recently-played/
 # Note: You need a Spotify account (can be easily created for free)
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     
     # Convert time to Unix timestamp in miliseconds      
     today = datetime.datetime.now()
-    yesterday = today - datetime.timedelta(days=61)
+    yesterday = today - datetime.timedelta(days=1)
     yesterday_unix_timestamp = int(yesterday.timestamp()) * 1000
 
     # Download all songs you've listened to "after yesterday", which means in the last 24 hours      
