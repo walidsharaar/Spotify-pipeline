@@ -1,17 +1,20 @@
 import sqlalchemy
-import pandas as pd 
+import pandas as pd
+from sqlalchemy.orm import sessionmaker
 import requests
+import json
 from datetime import datetime
 import datetime
-import psycopg2 as pg2
+import sqlite3
 
 
-DATABASE_LOCATION = "postgresql://postgres:pass@localhost:54321/Programming"
+DATABASE_LOCATION = "sqllite://my_playlist.sqllite"
 USER_ID = "Sharaar" # your Spotify username 
-TOKEN = "BQDT1obJpx-OkJWNiOWU2GgSEX1Mkn_BMKlys6DdiE425SX6PUPXx55DHyJyI1LcaFHRb1YpminLXBed5eQWBEUOV4u5oSWcDGvj89phslvjNXzh37qQSzeqBTaAREOGPRgY7GRE93Tccj1i6saJDZGz3zH9KJUCd1ko" # your Spotify API token
+TOKEN = "BQDNmwDho1H0KMJTFdrlAjEM7OS9ZkZ9MV" # your Spotify API token
 
 # Generate your token here:  https://developer.spotify.com/console/get-recently-played/
 # Note: You need a Spotify account (can be easily created for free)
+
 
 def check_if_valid_data(df: pd.DataFrame) -> bool:
     # Check if dataframe is empty
