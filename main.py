@@ -8,9 +8,10 @@ import datetime
 import sqlite3
 
 
+
 DATABASE_LOCATION = "sqlite:///my_played_tracks.sqlite"
 USER_ID = "Sharaar" # your Spotify username 
-TOKEN = "BQAgMwE0aWBK3o0RtQaFDIePPZPSkfUF0vtd1gdf-83ov38_Fi6xTwPEI8MAglegna4eGjimlrF031rr9oMd0f5zdmUE_t1PSXjfa0ZiSnhQbk51j_EsuuuOtGCMA2-1BYC36jHyBPyS6RV9jm6zsHlz-BgUQaF8M7sg2Z_Pa8l56U8f78YmeVANamc5CFip6V-kZA" # your Spotify API token
+TOKEN = "BQAs-X2_VnFtOh2MdqtVlEt24pk1PjOOSR4nLiZmUEQKbjI7pjPdbLn5BYEOAxgqnVuwKAyFz9hDc-3hg-op5nKJUlwmDOVBXAOwgsGD_WdUz2_mpEpWGb2InwLjH-foH_msi01T6U_Wb4NliIy7bLREMrel_apsO3_h1sn3c5aJe7EYUevwd1TSb3L-408tKatWdA" # your Spotify API token
 
 # Generate your token here:  https://developer.spotify.com/console/get-recently-played/
 # Note: You need a Spotify account (can be easily created for free)
