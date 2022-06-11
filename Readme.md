@@ -5,8 +5,12 @@ I am going to build a simple data pipeline (or in other words, a data feed) that
 
 I will schedule this pipeline to run daily. After a few months I will end up with our own, private Spotify played tracks history dataset!
 
-## 1. Extract Data
+## 1. Get Data
 I am using spotify api for getting the data from the spotify.
 Documentation is as below: 
 https://developer.spotify.com/console/get-recently-played/
+
+## 2. Automation
+Airflow quick start guide:
+https://airflow.apache.org/docs/apache-airflow/stable/start/index.html
 
