@@ -11,8 +11,7 @@ import sqlite3
 
 DATABASE_LOCATION = "sqlite:///my_played_tracks.sqlite"
 USER_ID = "Sharaar" # your Spotify username 
-TOKEN = "BQAs-X2_VnFtOh2MdqtVlEt24pk1PjOOSR4nLiZmUEQKbjI7pjPdbLn5BYEOAxgqnVuwKAyFz9hDc-3hg-op5nKJUlwmDOVBXAOwgsGD_WdUz2_mpEpWGb2InwLjH-foH_msi01T6U_Wb4NliIy7bLREMrel_apsO3_h1sn3c5aJe7EYUevwd1TSb3L-408tKatWdA" # your Spotify API token
-
+TOKEN ="BQAe_H1pBBvfXiPJ0jwkll0kqOkghJLZ678uQN63hqvcBkH4rxHxxqPeQlqiPCQRGIdG0TJiDP6WYBjtyvdA5Dw8TD4Pms_doFGiWnH1x1Lm662ixp7POpgvUdQoNDOCzUgXy1vL2YeFB2SoWGjU9-caVIRXF6ZT11-FxOEOCsbUJQKGERl48gxZD2gVPkwgeH2BLA"
 # Generate your token here:  https://developer.spotify.com/console/get-recently-played/
 # Note: You need a Spotify account (can be easily created for free)
 
@@ -32,16 +31,16 @@ def check_if_valid_data(df: pd.DataFrame) -> bool:
     if df.isnull().values.any():
         raise Exception("Null values found")
 
-    # Check that all timestamps are of yesterday's date
-    yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
-    yesterday = yesterday.replace(hour=0, minute=0, second=0, microsecond=0)
+    # # Check that all timestamps are of yesterday's date
+    # yesterday = datetime.datetime.now() - datetime.timedelta(days=120)
+    # yesterday = yesterday.replace(hour=0, minute=0, second=0, microsecond=0)
 
-    timestamps = df["timestamp"].tolist()
-    for timestamp in timestamps:
-        if datetime.datetime.strptime(timestamp, '%Y-%m-%d') != yesterday:
-            raise Exception("At least one of the returned songs does not have a yesterday's timestamp")
+    # timestamps = df["timestamp"].tolist()
+    # for timestamp in timestamps:
+    #     if datetime.datetime.strptime(timestamp, '%Y-%m-%d') != yesterday:
+    #         raise Exception("At least one of the returned songs does not have a yesterday's timestamp")
 
-    return True
+    # return True
 
 if __name__ == "__main__":
 
@@ -53,9 +52,9 @@ if __name__ == "__main__":
         "Authorization" : "Bearer {token}".format(token=TOKEN)
     }
     
-    # Convert time to Unix timestamp in miliseconds      
+    # Convert time to Unix timestamp in milliseconds      
     today = datetime.datetime.now()
-    yesterday = today - datetime.timedelta(days=1)
+    yesterday = today - datetime.timedelta(days=500)
     yesterday_unix_timestamp = int(yesterday.timestamp()) * 1000
 
     # Download all songs you've listened to "after yesterday", which means in the last 24 hours      
@@ -75,7 +74,7 @@ if __name__ == "__main__":
         played_at_list.append(song["played_at"])
         timestamps.append(song["played_at"][0:10])
         
-    # Prepare a dictionary in order to turn it into a pandas dataframe below       
+    # Prepare a dictionary in order to turn it into a pandas data frame below       
     song_dict = {
         "song_name" : song_names,
         "artist_name": artist_names,
