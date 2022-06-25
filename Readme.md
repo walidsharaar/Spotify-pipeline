@@ -14,5 +14,3 @@ https://developer.spotify.com/console/get-recently-played/
 Airflow quick start guide:
 https://airflow.apache.org/docs/apache-airflow/stable/start/index.html
 
-# Youtube and Spotify Automation
-
